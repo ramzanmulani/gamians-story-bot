@@ -1,7 +1,16 @@
 {
   "bag": [],
   "recent": [],
-  "posted": [],
+  "posted": [
+    {
+      "at": "2026-11-21T09:50:13+00:00",
+      "media_id": "18102099773428667",
+      "permalink": "https://www.instagram.com/reel/Df_rjq4xx4b/",
+      "instagram_story_id": "17971122306191270"
+    }
+  ],
   "cycles": 0,
-  "new_done": []
+  "new_done": [
+    "18102099773428667"
+  ]
 }

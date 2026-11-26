@@ -115,3 +115,12 @@ notify:
   # Optional. If the DISCORD_WEBHOOK secret is set, post a line per run.
   on_success: false
   on_failure: true
+
+spotlight:
+  # Once a day (19:00 IST) one game from gamians.com gets a designed post card + funny caption.
+  # Newest site games go first, then a shuffle bag (every game once before repeats).
+  targets:
+    instagram: true        # gamians_com feed post
+    facebook: true         # Gamians Page photo post (link clickable)
+    threads: true          # needs the THREADS_TOKEN secret; skipped quietly without it
+  exclude: ["food-run", "food-run-3d"]

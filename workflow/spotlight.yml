@@ -1,0 +1,69 @@
+name: Daily game spotlight
+
+# Once a day one game from gamians.com -> Instagram feed + Gamians Facebook Page + Threads.
+# 13:30 UTC = 19:00 IST.
+on:
+  schedule:
+    - cron: "30 13 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Render the card and captions, publish nothing"
+        type: boolean
+        default: true
+      slug:
+        description: "Force one game (slug), blank = next in line"
+        type: string
+        default: ""
+
+# Shares the story bot's group: both push to gh-pages and the state files.
+concurrency:
+  group: gamians-story-bot
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  spotlight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Post spotlight
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+        run: python scripts/spotlight.py --slug "${{ github.event_name == 'workflow_dispatch' && inputs.slug || '' }}"
+      - name: Upload card (dry runs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotlight-card
+          path: spot-*.jpg
+          if-no-files-found: ignore
+      - name: Save spotlight state
+        if: success()
+        run: |
+          if [[ -n "$(git status --porcelain state/)" ]]; then
+            git config user.name  "gamians-story-bot"
+            git config user.email "gamians-story-bot@users.noreply.github.com"
+            git add state/spotlight.json state/threads_token.enc 2>/dev/null || git add state/spotlight.json
+            git commit -m "spotlight: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+              sleep $((i * 5))
+            done
+            echo "::warning::Could not push spotlight state after 3 attempts."
+          fi

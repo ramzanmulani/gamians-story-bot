@@ -164,8 +164,8 @@
     "choo-choo-rush-3d",
     "laddoo-landslide"
   ],
-  "last_opener": 2,
-  "last_label": "TRY NOT TO LAUGH",
+  "last_opener": 0,
+  "last_label": "NEW HIGH SCORE?",
   "posted": [
     {
       "at": "2026-11-26T06:30:51+00:00",
@@ -179,6 +179,11 @@
       "at": "2026-11-26T07:57:29+00:00",
       "slug": "moo-hem",
       "facebook": "1446723075187185_122099623785562085"
+    },
+    {
+      "at": "2026-11-26T08:13:17+00:00",
+      "slug": "moo-hem",
+      "threads": "17914028022310759"
     }
   ]
 }

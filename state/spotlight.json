@@ -164,8 +164,8 @@
     "choo-choo-rush-3d",
     "laddoo-landslide"
   ],
-  "last_opener": 8,
-  "last_label": "PLAY THIS NOW",
+  "last_opener": 2,
+  "last_label": "TRY NOT TO LAUGH",
   "posted": [
     {
       "at": "2026-11-26T06:30:51+00:00",
@@ -174,6 +174,11 @@
       "failed": {
         "facebook": "FB photo: [200] (#200) The permission(s) pages_manage_posts are not available. It could because either they are deprecated or need to be approved by App Review."
       }
+    },
+    {
+      "at": "2026-11-26T07:57:29+00:00",
+      "slug": "moo-hem",
+      "facebook": "1446723075187185_122099623785562085"
     }
   ]
 }

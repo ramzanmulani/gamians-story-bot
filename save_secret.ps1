@@ -7,15 +7,20 @@ param([Parameter(Mandatory)][ValidateSet('threads','page')][string]$Kind)
 $ErrorActionPreference = 'Continue'
 $repo = 'ramzanmulani/gamians-story-bot'
 $GAMIANS_PAGE = '1446723075187185'
-function Fail($m) { Write-Host "  $m" -ForegroundColor Red; exit 1 }
+$LOG = Join-Path $PSScriptRoot 'save_secret.log'
+function Log($m) { Add-Content -Path $LOG -Value ("{0:s} [{1}] {2}" -f (Get-Date), $Kind, $m) }
+function Fail($m) { Log "FAIL: $m"; Write-Host "  $m" -ForegroundColor Red; exit 1 }
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $t = ((Get-Clipboard -Raw) -replace '\s', '')
+Log ("clipboard: {0} chars, starts with '{1}'" -f $t.Length, ($(if ($t.Length -ge 4) { $t.Substring(0, 4) } else { $t })))
 if ($t.Length -lt 60) { Fail 'The clipboard does not hold a token. Copy it first (Ctrl+C), then run this again.' }
 
 if ($Kind -eq 'threads') {
-    try { $me = Invoke-RestMethod "https://graph.threads.net/v1.0/me?fields=username&access_token=$t" } catch { Fail "Threads refused this token: $($_.Exception.Message)" }
+    try { $me = Invoke-RestMethod "https://graph.threads.net/v1.0/me?fields=username&access_token=$t" } catch { $body = ''; try { $body = (New-Object IO.StreamReader($_.Exception.Response.GetResponseStream())).ReadToEnd() } catch {}; Fail "Threads refused this token: $($_.Exception.Message) $body" }
     if ($me.username -ne 'gamians_com') { Fail "This token is for @$($me.username), not @gamians_com. Not saved." }
     $t | gh secret set THREADS_TOKEN --repo $repo
     if ($LASTEXITCODE -ne 0) { Fail 'gh could not save the secret.' }
+    Log 'OK: THREADS_TOKEN saved'
     Write-Host '  Threads token for @gamians_com saved.' -ForegroundColor Green
 } else {
     try { $pg = Invoke-RestMethod "https://graph.facebook.com/v21.0/$($GAMIANS_PAGE)?fields=name,access_token&access_token=$t" } catch { Fail "Facebook refused this token: $($_.Exception.Message)" }

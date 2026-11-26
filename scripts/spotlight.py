@@ -317,6 +317,9 @@ def main() -> int:
                                   pages_origin=cfg["account"]["pages_origin"],
                                   retention_hours=48, wait_sec=int(cfg.get("hosting", {}).get("pages_wait_sec", 240)))
     targets = sc.get("targets", {"instagram": True, "facebook": True, "threads": True})
+    only = [t.strip() for t in (os.environ.get("ONLY_TARGETS") or "").split(",") if t.strip()]
+    if only:                             # manual test runs: post to just these
+        targets = {k: (k in only and v) for k, v in targets.items()}
     done, failed = {}, {}
     jobs = {
         "instagram": lambda: post_instagram(ig_id, token, image_url, caps["instagram"]),

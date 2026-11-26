@@ -15,6 +15,10 @@ on:
         description: "Force one game (slug), blank = next in line"
         type: string
         default: ""
+      only:
+        description: "Post only to these (comma list: instagram,facebook,threads). Blank = all"
+        type: string
+        default: ""
 
 # Shares the story bot's group: both push to gh-pages and the state files.
 concurrency:
@@ -45,6 +49,7 @@ jobs:
           THREADS_TOKEN: ${{ secrets.THREADS_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          ONLY_TARGETS: ${{ github.event_name == 'workflow_dispatch' && inputs.only || '' }}
         run: python scripts/spotlight.py --slug "${{ github.event_name == 'workflow_dispatch' && inputs.slug || '' }}"
       - name: Upload card (dry runs)
         if: always()
